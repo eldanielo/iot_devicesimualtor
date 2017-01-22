@@ -1,0 +1,131 @@
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+'use strict';
+
+var Protocol = require('azure-iot-device-mqtt').Mqtt;
+var Client = require('azure-iot-device').Client;
+var ConnectionString = require('azure-iot-device').ConnectionString;
+var Message = require('azure-iot-device').Message;
+
+// String containing Hostname, Device Id & Device Key in the following formats:
+//  "HostName=<iothub_host_name>;DeviceId=<device_id>;SharedAccessKey=<device_key>"
+// @TODO 1: set correct connectionString (you should not do this in real life!)
+var connectionString = '';
+var deviceId = ConnectionString.parse(connectionString).DeviceId;
+
+// Sensors data
+var temperature = 50;
+var humidity = 50;
+var externalTemperature = 55;
+// @TODO 3: add a new value to be sent to the IoT Hub
+
+ 
+
+
+// Create IoT Hub client
+var client = Client.fromConnectionString(connectionString, Protocol);
+
+// Helper function to print results for an operation
+function printErrorFor(op) {
+  return function printError(err) {
+    if (err) console.log(op + ' error: ' + err.toString());
+  };
+}
+
+// Helper function to generate random number between min and max
+function generateRandomIncrement() {
+  return ((Math.random() * 2) - 1);
+}
+
+
+// Send device meta data
+//@TODO 4: The device metadata contains information about the device and its capabilites. Add a 'Telemetry' capability, similiar to the 'commands' for Temperature, humidity and ExternalTemperature.
+// Use the DisplayName attribute to customize the display in the dashboard
+var deviceMetaData = {
+  'ObjectType': 'DeviceInfo',
+  'IsSimulatedDevice': 0,
+  'Version': '1.0',
+  'DeviceProperties': {
+    'DeviceID': deviceId,
+    'HubEnabledState': 1,
+    'CreatedTime': '2015-09-21T20:28:55.5448990Z',
+    'DeviceState': 'normal',
+    'UpdatedTime': null,
+    'Manufacturer': 'Contoso Inc.',
+    'ModelNumber': 'MD-909',
+    'SerialNumber': 'SER9090',
+    'FirmwareVersion': '1.10',
+    'Platform': 'node.js',
+    'Processor': 'ARM',
+    'InstalledRAM': '64 MB',
+    'Latitude': 47.617025,
+    'Longitude': -122.191285
+  },
+  'Commands': [{
+    'Name': 'SetTemperature',
+    'Parameters': [{
+      'Name': 'Temperature',
+      'Type': 'double'
+    }]
+  },
+    {
+      'Name': 'SetHumidity',
+      'Parameters': [{
+        'Name': 'Humidity',
+        'Type': 'double'
+      }]
+    }]
+};
+
+client.open(function (err) {
+  if (err) {
+    printErrorFor('open')(err);
+  } else {
+    console.log('Sending device metadata:\n' + JSON.stringify(deviceMetaData));
+    client.sendEvent(new Message(JSON.stringify(deviceMetaData)), printErrorFor('send metadata'));
+
+    client.on('message', function (msg) {
+      console.log('receive data: ' + msg.getData());
+
+      try {
+        var command = JSON.parse(msg.getData());
+        if (command.Name === 'SetTemperature') {
+          temperature = command.Parameters.Temperature;
+          console.log('New temperature set to :' + temperature + 'F');
+        }
+
+        client.complete(msg, printErrorFor('complete'));
+      }
+      catch (err) {
+        printErrorFor('parse received message')(err);
+      }
+    });
+
+    // start event data send routing
+    var sendInterval = setInterval(function () {
+      temperature += generateRandomIncrement();
+      externalTemperature += generateRandomIncrement();
+      humidity += generateRandomIncrement();
+	 
+
+	  //@TODO 2: add the correct variables.
+      var data = JSON.stringify({
+        'DeviceID': ,
+        'Temperature': ,
+        'Humidity': ,
+        'ExternalTemperature':
+
+      });
+
+      console.log('Sending device event data:\n' + data);
+      client.sendEvent(new Message(data), printErrorFor('send event'));
+    }, 1000);
+
+    client.on('error', function (err) {
+      printErrorFor('client')(err);
+      if (sendInterval) clearInterval(sendInterval);
+      client.close(printErrorFor('client.close'));
+    });
+  }
+});
