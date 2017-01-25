@@ -11,15 +11,15 @@ var Message = require('azure-iot-device').Message;
 // String containing Hostname, Device Id & Device Key in the following formats:
 //  "HostName=<iothub_host_name>;DeviceId=<device_id>;SharedAccessKey=<device_key>"
 // @TODO 1: set correct connectionString (you should not do this in real life!)
-var connectionString = '';
+var connectionString = 'HostName=iot-remotemonitoringhakacecc.azure-devices.net;DeviceId=DanielSoftware;SharedAccessKey=udtUMoxNJRHp/BvvH5Cu8g==';
 var deviceId = ConnectionString.parse(connectionString).DeviceId;
 
 // Sensors data
 var temperature = 50;
 var humidity = 50;
 var externalTemperature = 55;
-// @TODO 3: add a new value to be sent to the IoT Hub
-
+// @TODO 3: add a new sensor value to be sent to the IoT Hub and change it's value randomly (similar to the other sensor)
+var myval = 100;
  
 
 
@@ -40,8 +40,9 @@ function generateRandomIncrement() {
 
 
 // Send device meta data
-//@TODO 4: The device metadata contains information about the device and its capabilites. Add a 'Telemetry' capability, similiar to the 'commands' for Temperature, humidity and ExternalTemperature.
-// Use the DisplayName attribute to customize the display in the dashboard
+//@TODO 4: The device metadata contains information about the device and its capabilites. 
+// Restirct the visible Telemetry by adding a 'Telemetry' capability, similiar to the 'commands' for only humidity and your telemtry created in step 1
+// Use the DisplayName attribute to customize the displayed name in the dashboard
 var deviceMetaData = {
   'ObjectType': 'DeviceInfo',
   'IsSimulatedDevice': 0,
@@ -75,7 +76,16 @@ var deviceMetaData = {
         'Name': 'Humidity',
         'Type': 'double'
       }]
-    }]
+    }],
+	'Telemetry': [{
+		  'Name': 'Humidity',
+		  'Type': 'double',
+		  'DisplayName': 'Humidity '
+	},{
+		'name' :'myval',
+		'type' :'double',
+		'DisplayName' : 'awesomeval x100'
+	}]
 };
 
 client.open(function (err) {
@@ -107,14 +117,15 @@ client.open(function (err) {
       temperature += generateRandomIncrement();
       externalTemperature += generateRandomIncrement();
       humidity += generateRandomIncrement();
-	 
+	  myval += generateRandomIncrement();
 
 	  //@TODO 2: add the correct variables.
       var data = JSON.stringify({
-        'DeviceID': ,
-        'Temperature': ,
-        'Humidity': ,
-        'ExternalTemperature':
+        'DeviceID': deviceId,
+        'Temperature': temperature,
+        'Humidity': humidity,
+        'ExternalTemperature': externalTemperature,
+		'myval': myval
 
       });
 
