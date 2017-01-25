@@ -11,7 +11,7 @@ var Message = require('azure-iot-device').Message;
 // String containing Hostname, Device Id & Device Key in the following formats:
 //  "HostName=<iothub_host_name>;DeviceId=<device_id>;SharedAccessKey=<device_key>"
 // @TODO 1: set correct connectionString (you should not do this in real life!)
-var connectionString = 'HostName=iot-remotemonitoringhakacecc.azure-devices.net;DeviceId=DanielSoftware;SharedAccessKey=udtUMoxNJRHp/BvvH5Cu8g==';
+var connectionString = '';
 var deviceId = ConnectionString.parse(connectionString).DeviceId;
 
 // Sensors data
@@ -19,7 +19,6 @@ var temperature = 50;
 var humidity = 50;
 var externalTemperature = 55;
 // @TODO 3: add a new sensor value to be sent to the IoT Hub and change it's value randomly (similar to the other sensor)
-var myval = 100;
  
 
 
@@ -76,16 +75,7 @@ var deviceMetaData = {
         'Name': 'Humidity',
         'Type': 'double'
       }]
-    }],
-	'Telemetry': [{
-		  'Name': 'Humidity',
-		  'Type': 'double',
-		  'DisplayName': 'Humidity '
-	},{
-		'name' :'myval',
-		'type' :'double',
-		'DisplayName' : 'awesomeval x100'
-	}]
+    }]
 };
 
 client.open(function (err) {
@@ -117,15 +107,14 @@ client.open(function (err) {
       temperature += generateRandomIncrement();
       externalTemperature += generateRandomIncrement();
       humidity += generateRandomIncrement();
-	  myval += generateRandomIncrement();
 
+	  
 	  //@TODO 2: add the correct variables.
       var data = JSON.stringify({
-        'DeviceID': deviceId,
-        'Temperature': temperature,
-        'Humidity': humidity,
-        'ExternalTemperature': externalTemperature,
-		'myval': myval
+        'DeviceID': ,
+        'Temperature': ,
+        'Humidity': ,
+        'ExternalTemperature': ,
 
       });
 
